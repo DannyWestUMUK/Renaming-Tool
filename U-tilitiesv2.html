@@ -1,0 +1,224 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2761
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
+{\colortbl;\red255\green255\blue255;}
+{\*\expandedcolortbl;;}
+\paperw11900\paperh16840\margl1440\margr1440\vieww34360\viewh20460\viewkind0
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+
+\f0\fs24 \cf0 <!DOCTYPE html>\
+<html lang="en">\
+<head>\
+  <meta charset="UTF-8">\
+  <title>Delivery Titles Generator</title>\
+  <style>\
+    body \{\
+      font-family: "Century Gothic", sans-serif;\
+      padding: 20px;\
+      background: #f5f5f5;\
+    \}\
+    .container \{\
+      max-width: 600px;\
+      margin: auto;\
+      background: #fff;\
+      padding: 20px;\
+      border-radius: 5px;\
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);\
+    \}\
+    label \{\
+      display: block;\
+      margin-top: 15px;\
+      font-weight: bold;\
+    \}\
+    input[type="text"], select \{\
+      width: 100%;\
+      padding: 8px;\
+      margin-top: 5px;\
+      box-sizing: border-box;\
+    \}\
+    .track-key-group \{\
+      display: flex;\
+      gap: 5px;\
+    \}\
+    .track-key-group select \{\
+      flex: 1;\
+    \}\
+    button \{\
+      margin-top: 15px;\
+      padding: 10px 15px;\
+      font-size: 14px;\
+      cursor: pointer;\
+    \}\
+    .output \{\
+      margin-top: 20px;\
+    \}\
+    .title-item \{\
+      display: flex;\
+      align-items: center;\
+      background: #e9ecef;\
+      padding: 10px;\
+      margin-bottom: 10px;\
+      border-radius: 3px;\
+    \}\
+    .title-text \{\
+      flex-grow: 1;\
+    \}\
+    .copy-btn \{\
+      margin-left: 10px;\
+      padding: 5px 10px;\
+    \}\
+    h2 \{\
+      margin-top: 25px;\
+      font-size: 18px;\
+      color: #333;\
+    \}\
+  </style>\
+</head>\
+<body>\
+  <div class="container">\
+    <h1>Delivery Titles Generator</h1>\
+    <form id="titleForm" onsubmit="return false;">\
+      <label for="songTitle">Song Title:</label>\
+      <input type="text" id="songTitle" required>\
+\
+      <label for="composerName">Composer Name:</label>\
+      <input type="text" id="composerName" required>\
+\
+      <label for="projectCode">Project Code:</label>\
+      <input type="text" id="projectCode" required>\
+\
+      <label for="trackBPM">Track BPM:</label>\
+      <input type="text" id="trackBPM" required oninput="validateBPM()">\
+\
+      <label>Track Key:</label>\
+      <div class="track-key-group">\
+        <select id="keyInput">\
+          <option value="C">C</option>\
+          <option value="D">D</option>\
+          <option value="E">E</option>\
+          <option value="F">F</option>\
+          <option value="G">G</option>\
+          <option value="A">A</option>\
+          <option value="B">B</option>\
+        </select>\
+        <select id="alterInput">\
+          <option value="">(none)</option>\
+          <option value="#">#</option>\
+          <option value="b">b</option>\
+        </select>\
+        <select id="modeInput">\
+          <option value="Major">Major</option>\
+          <option value="Minor">Minor</option>\
+          <option value="Modal">Modal</option>\
+        </select>\
+      </div>\
+\
+      <label for="trackType">Track Type:</label>\
+      <select id="trackType">\
+        <option value="Vocal Track">Vocal Track</option>\
+        <option value="Instrumental">Instrumental</option>\
+      </select>\
+\
+      <div>\
+        <button type="button" onclick="generateTitles()">Generate Delivery Titles</button>\
+        <button type="button" onclick="resetForm()">Reset</button>\
+      </div>\
+    </form>\
+    \
+    <div id="output" class="output"></div>\
+  </div>\
+\
+  <script>\
+    function generateTitles() \{\
+      // Retrieve input values\
+      const songTitle = document.getElementById("songTitle").value.trim();\
+      const composerName = document.getElementById("composerName").value.trim();\
+      const projectCode = document.getElementById("projectCode").value.trim();\
+      const trackBPM = document.getElementById("trackBPM").value.trim();\
+      const keyInput = document.getElementById("keyInput").value;\
+      const alterInput = document.getElementById("alterInput").value;\
+      const modeInput = document.getElementById("modeInput").value;\
+      const trackType = document.getElementById("trackType").value;\
+\
+      // Validate BPM\
+      if (!/^\\d*$/.test(trackBPM)) \{\
+        alert("Track BPM can only contain numbers.");\
+        return;\
+      \}\
+\
+      // Track Key Formatting\
+      const trackKey = keyInput + alterInput + " " + modeInput;\
+\
+      // Ensure all fields are filled in\
+      if (!songTitle || !composerName || !projectCode || !trackBPM) \{\
+        alert("Please fill in all fields.");\
+        return;\
+      \}\
+\
+      // Generate composer initials\
+      const words = composerName.split(" ");\
+      let initials = words.map(word => word[0].toUpperCase()).join("");\
+\
+      // Define the base versions\
+      let baseVersions = trackType === "Instrumental" ? \
+        [\{ prefix: "A_", name: "Main" \}, \{ prefix: "B_", name: "NoLeads" \}, \{ prefix: "C_", name: "US" \}] :\
+        [\{ prefix: "A_", name: "Main" \}, \{ prefix: "B_", name: "NoLeadVox" \}, \{ prefix: "C_", name: "NoLeads" \}, \{ prefix: "D_", name: "US" \}];\
+\
+      // Additional suffixes\
+      const additionalSuffixes = ["", "60", "30", "15", "Sting"];\
+\
+      let outputHTML = `<h2>Your deliverables and titles should be the following:</h2>`;\
+      baseVersions.forEach(base => \{\
+        additionalSuffixes.forEach(suffix => \{\
+          const versionLabel = base.name + suffix;\
+          const fileName = `$\{projectCode\}_$\{songTitle\}_$\{initials\}_$\{base.prefix\}$\{versionLabel\}`;\
+          outputHTML += `\
+          <div class="title-item">\
+            <span class="title-text">$\{fileName\}</span>\
+            <button class="copy-btn" onclick="copyText('$\{fileName\}')">Copy</button>\
+          </div>`;\
+        \});\
+      \});\
+\
+      // Stems Folder Name\
+      const stemsFolderName = `$\{projectCode\}_$\{songTitle\}_$\{initials\}_$\{trackBPM\}bpm_$\{trackKey\}_Stems`;\
+      outputHTML += `<h2>Your stems folder name should be:</h2>\
+      <div class="title-item">\
+        <span class="title-text">$\{stemsFolderName\}</span>\
+        <button class="copy-btn" onclick="copyText('$\{stemsFolderName\}')">Copy</button>\
+      </div>`;\
+\
+      // Stems Naming Convention\
+      const stemsNaming = `$\{projectCode\}_$\{songTitle\}_$\{initials\}_Client Stem`;\
+      outputHTML += `<h2>Use the following to name your stems: (Replace "Client" with the instrument name)</h2>\
+      <div class="title-item">\
+        <span class="title-text">$\{stemsNaming\}</span>\
+        <button class="copy-btn" onclick="copyText('$\{stemsNaming\}')">Copy</button>\
+      </div>`;\
+\
+      document.getElementById("output").innerHTML = outputHTML;\
+    \}\
+\
+    function copyText(text) \{\
+      const textarea = document.createElement("textarea");\
+      textarea.value = text;\
+      document.body.appendChild(textarea);\
+      textarea.select();\
+      document.execCommand("copy");\
+      document.body.removeChild(textarea);\
+    \}\
+\
+    function validateBPM() \{\
+      const bpmInput = document.getElementById("trackBPM");\
+      if (!/^\\d*$/.test(bpmInput.value)) \{\
+        alert("Track BPM can only contain numbers.");\
+        bpmInput.value = bpmInput.value.replace(/\\D/g, ""); // Remove non-numeric characters\
+      \}\
+    \}\
+\
+    function resetForm() \{\
+      document.getElementById("titleForm").reset();\
+      document.getElementById("output").innerHTML = "";\
+    \}\
+  </script>\
+</body>\
+</html>}
